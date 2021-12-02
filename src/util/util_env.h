@@ -1,5 +1,7 @@
 #pragma once
 
+#include <x86intrin.h>
+
 #include "util_string.h"
 
 namespace dxvk::env {
@@ -9,6 +11,16 @@ namespace dxvk::env {
    */
   constexpr bool is32BitHostPlatform() {
     return sizeof(void*) == 4;
+  }
+
+  /**
+   * \brief Sets up floating point state
+   *
+   * Having apps change FP state can cause issues on our
+   * worker threads, so we need a sane default for them.
+   */
+  inline void setDefaultCsrState() {
+    _mm_setcsr(0x1f80);
   }
 
   /**

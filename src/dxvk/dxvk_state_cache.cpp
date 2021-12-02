@@ -923,6 +923,7 @@ namespace dxvk {
 
   void DxvkStateCache::workerFunc() {
     env::setThreadName("dxvk-shader");
+    env::setDefaultCsrState();
 
     while (!m_stopThreads.load()) {
       WorkerItem item;

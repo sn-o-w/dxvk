@@ -83,6 +83,7 @@ namespace dxvk {
 
   void DxvkSubmissionQueue::submitCmdLists() {
     env::setThreadName("dxvk-submit");
+    env::setDefaultCsrState();
 
     std::unique_lock<dxvk::mutex> lock(m_mutex);
 
@@ -139,6 +140,7 @@ namespace dxvk {
   
   void DxvkSubmissionQueue::finishCmdLists() {
     env::setThreadName("dxvk-queue");
+    env::setDefaultCsrState();
 
     std::unique_lock<dxvk::mutex> lock(m_mutex);
 

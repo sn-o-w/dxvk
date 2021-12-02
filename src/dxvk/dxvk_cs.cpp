@@ -132,6 +132,7 @@ namespace dxvk {
   
   void DxvkCsThread::threadFunc() {
     env::setThreadName("dxvk-cs");
+    env::setDefaultCsrState();
 
     DxvkCsChunkRef chunk;
 
