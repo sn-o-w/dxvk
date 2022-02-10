@@ -590,11 +590,10 @@ namespace dxvk {
                 | VK_ACCESS_SHADER_READ_BIT
                 | VK_ACCESS_SHADER_WRITE_BIT;
     
+    // Always use a cached memory type since we may read from the buffer
     VkMemoryPropertyFlags memType = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
-                                  | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-    
-    if (m_desc.Usage == D3D11_USAGE_STAGING)
-      memType |= VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+                                  | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+                                  | VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
     
     MappedBuffer result;
     result.buffer = m_device->GetDXVKDevice()->createBuffer(info, memType);
