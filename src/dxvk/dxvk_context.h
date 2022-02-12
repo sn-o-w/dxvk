@@ -1349,6 +1349,10 @@ namespace dxvk {
 
     void trackDrawBuffer();
 
+    bool tryInvalidateDeviceLocalBuffer(
+      const Rc<DxvkBuffer>&           buffer,
+            VkDeviceSize              copySize);
+
     DxvkGraphicsPipeline* lookupGraphicsPipeline(
       const DxvkGraphicsPipelineShaders&  shaders);
 
