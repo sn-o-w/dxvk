@@ -214,23 +214,12 @@ namespace dxvk {
         largestDeviceLocalHeap = std::max(largestDeviceLocalHeap, m_memTypes[i].heap->properties.size);
     }
 
-    /* Work around an issue on Nvidia drivers where using the entire
-     * device_local | host_visible heap can cause crashes or slowdowns */
-    if (m_device->properties().core.properties.vendorID == uint16_t(DxvkGpuVendor::Nvidia)) {
-      bool shrinkNvidiaHvvHeap = device->adapter()->matchesDriver(DxvkGpuVendor::Nvidia,
-        VK_DRIVER_ID_NVIDIA_PROPRIETARY_KHR, 0, VK_MAKE_VERSION(465, 0, 0));
+    for (uint32_t i = 0; i < m_memProps.memoryTypeCount; i++) {
+      VkMemoryPropertyFlags hvvFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
 
-      applyTristate(shrinkNvidiaHvvHeap, device->config().shrinkNvidiaHvvHeap);
-
-      if (shrinkNvidiaHvvHeap) {
-        for (uint32_t i = 0; i < m_memProps.memoryTypeCount; i++) {
-          VkMemoryPropertyFlags hvvFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
-
-          if ((m_memTypes[i].memType.propertyFlags & hvvFlags) == hvvFlags
-           && (m_memTypes[i].heap->properties.size < largestDeviceLocalHeap))
-            m_memTypes[i].heap->budget = 32 << 20;
-        }
-      }
+      if ((m_memTypes[i].memType.propertyFlags & hvvFlags) == hvvFlags
+       && (m_memTypes[i].heap->properties.size < largestDeviceLocalHeap))
+        m_memTypes[i].heap->budget = 0;
     }
   }
   
@@ -498,8 +487,8 @@ namespace dxvk {
     VkMemoryType type = m_memProps.memoryTypes[memTypeId];
     VkMemoryHeap heap = m_memProps.memoryHeaps[type.heapIndex];
 
-    // Default to a chunk size of 128 MiB
-    VkDeviceSize chunkSize = 128 << 20;
+    // Default to a chunk size of 64 MiB
+    VkDeviceSize chunkSize = 64 << 20;
 
     if (hints.test(DxvkMemoryFlag::Small))
       chunkSize = 16 << 20;
