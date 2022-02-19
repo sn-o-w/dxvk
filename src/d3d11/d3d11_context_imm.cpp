@@ -81,13 +81,23 @@ namespace dxvk {
     // DataSize is 0, but we should ignore that pointer
     pData = DataSize ? pData : nullptr;
 
-    // Get query status directly from the query object
+    // Briefly stall CPU if the app is spinning on a query to
+    // reduce CPU utilization a bit, potentially helpful with
+    // SMT-enabled CPUs or just for minor power savings
     auto query = static_cast<D3D11Query*>(pAsync);
+
+    if (query->GetCookie() == m_asyncCookie)
+      sync::pause();
+
+    // Get query status directly from the query object
     HRESULT hr = query->GetData(pData, GetDataFlags);
     
     // If we're likely going to spin on the asynchronous object,
     // flush the context so that we're keeping the GPU busy.
     if (hr == S_FALSE) {
+      // Stall on next iteration if the app is spinning on this
+      m_asyncCookie = query->GetCookie();
+
       // Don't mark the event query as stalling if the app does
       // not intend to spin on it. This reduces flushes on End.
       if (!(GetDataFlags & D3D11_ASYNC_GETDATA_DONOTFLUSH))
@@ -96,6 +106,9 @@ namespace dxvk {
       // Ignore the DONOTFLUSH flag here as some games will spin
       // on queries without ever flushing the context otherwise.
       FlushImplicit(FALSE);
+    } else {
+      // Don't stall on the next GetData call
+      m_asyncCookie = 0ull;
     }
     
     return hr;
