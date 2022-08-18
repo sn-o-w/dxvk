@@ -177,11 +177,9 @@ namespace dxvk {
     if (unlikely(dstTexInfo->Desc()->Pool != D3DPOOL_SYSTEMMEM && dstTexInfo->Desc()->Pool != D3DPOOL_SCRATCH))
       return D3DERR_INVALIDCALL;
 
-    VkExtent3D dstTexExtent = dstTexInfo->GetExtentMip(dst->GetMipLevel());
-    VkExtent3D srcTexExtent = srcTexInfo->GetExtentMip(0);
-
-    Rc<DxvkBuffer> dstBuffer = dstTexInfo->GetBuffer(dst->GetSubresource(), dstTexExtent.width > srcTexExtent.width || dstTexExtent.height > srcTexExtent.height);
-    Rc<DxvkImage>  srcImage  = srcTexInfo->GetImage();
+    dstTexInfo->CreateBuffer(true);
+    DxvkBufferSlice dstBufferSlice = dstTexInfo->GetBufferSlice(dst->GetSubresource());
+    Rc<DxvkImage>   srcImage       = srcTexInfo->GetImage();
 
     if (srcImage->info().sampleCount != VK_SAMPLE_COUNT_1_BIT) {
       DxvkImageCreateInfo resolveInfo;
@@ -315,13 +313,14 @@ namespace dxvk {
     VkExtent3D srcExtent = srcImage->mipLevelExtent(srcSubresource.mipLevel);
 
     m_parent->EmitCs([
-      cBuffer       = dstBuffer,
-      cImage        = srcImage,
+      cBufferSlice  = std::move(dstBufferSlice),
+      cImage        = std::move(srcImage),
       cSubresources = srcSubresourceLayers,
       cLevelExtent  = srcExtent
     ] (DxvkContext* ctx) {
-      ctx->copyImageToBuffer(cBuffer, 0, 4, 0,
-        cImage, cSubresources, VkOffset3D { 0, 0, 0 },
+      ctx->copyImageToBuffer(cBufferSlice.buffer(),
+        cBufferSlice.offset(), 4, 0, cImage,
+        cSubresources, VkOffset3D { 0, 0, 0 },
         cLevelExtent);
     });
 
