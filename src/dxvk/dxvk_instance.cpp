@@ -272,6 +272,9 @@ namespace dxvk {
         else if (deviceProperties[i].deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU)
           numIGPU += 1;
       }
+      if (!filter.testCreatedAdapter(result.back()->devicePropertiesExt())) {
+        result.pop_back();
+      }
     }
     
     std::stable_sort(result.begin(), result.end(),
