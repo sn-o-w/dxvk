@@ -123,6 +123,10 @@ namespace dxvk {
     if (unlikely(pLockedRect == nullptr))
       return D3DERR_INVALIDCALL;
 
+    // A multisample back buffer cannot be locked.
+    if (unlikely((m_texture->Desc()->IsBackBuffer) && (m_texture->Desc()->MultiSample > D3DMULTISAMPLE_NONMASKABLE)))
+      return D3DERR_INVALIDCALL;
+
     D3DBOX box;
     auto& desc = *(m_texture->Desc());
     D3DRESOURCETYPE type = m_texture->GetType();
