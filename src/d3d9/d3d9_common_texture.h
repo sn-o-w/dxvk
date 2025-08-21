@@ -45,13 +45,12 @@ namespace dxvk {
     D3DMULTISAMPLE_TYPE MultiSample;
     DWORD               MultisampleQuality;
     bool                Discard;
-    bool                IsShared;
+    bool                IsBackBuffer;
     bool                IsAttachmentOnly;
     bool                IsLockable;
 
     // Additional parameters for ID3D9VkInteropDevice
     VkImageUsageFlags   ImageUsage = 0;
-    bool                IsStableAddress = false;
   };
 
   struct D3D9ColorView {

@@ -313,11 +313,10 @@ namespace dxvk {
     desc.Discard            = params->Discard;
     desc.MultiSample        = params->MultiSample;
     desc.MultisampleQuality = params->MultiSampleQuality;
-    desc.IsShared           = params->Flags & D3D9_VK_IMAGE_STABLE_LAYOUT;
+    desc.IsBackBuffer       = FALSE;
     desc.IsAttachmentOnly   = params->IsAttachmentOnly;
     desc.IsLockable         = params->IsLockable;
     desc.ImageUsage         = params->ImageUsage;
-    desc.IsStableAddress    = params->Flags & D3D9_VK_IMAGE_STABLE_ADDRESS;
     
     D3DRESOURCETYPE textureType = params->Type == D3DRTYPE_SURFACE ? D3DRTYPE_TEXTURE : params->Type;
 

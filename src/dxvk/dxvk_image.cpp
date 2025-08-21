@@ -13,8 +13,7 @@ namespace dxvk {
     m_vkd           (device->vkd()),
     m_properties    (memFlags),
     m_shaderStages  (util::shaderStages(createInfo.stages)),
-    m_info          (createInfo),
-    m_stableAddress (createInfo.stableGpuAddress) {
+    m_info          (createInfo) {
     m_allocator->registerResource(this);
 
     copyFormatList(createInfo.viewFormatCount, createInfo.viewFormats);
